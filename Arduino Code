@@ -1,1 +1,47 @@
+#include <Servo.h>
+const int mq2AnalogPin = A0;
+const int relayPin = 7;
+const int buzzerPin = 8;
+const int ledPin = 6;
+const int servoPin = 9;
+const int gasThreshold = 400;
+Servo myServo;
+void setup() {
+  Serial.begin(9600);
+  Serial.println("System warming up...");
+  pinMode(relayPin, OUTPUT);
+  pinMode(buzzerPin, OUTPUT);
+  pinMode(ledPin, OUTPUT);
+  digitalWrite(relayPin, LOW);
+  digitalWrite(buzzerPin, LOW);
+  digitalWrite(ledPin, LOW);
+  myServo.attach(servoPin);
+  myServo.write(0);
 
+  delay(2000);
+  Serial.println("Ready to detect gas!");
+}
+
+void loop() {
+  int gasValue = analogRead(mq2AnalogPin);
+
+  Serial.print("Gas sensor value: ");
+  Serial.println(gasValue);
+  if (gasValue >= gasThreshold) {
+    Serial.println("Gas detected! Activating safety systems...");
+    digitalWrite(relayPin, HIGH);
+    digitalWrite(buzzerPin, HIGH);
+    digitalWrite(ledPin, HIGH);
+    delay(200);
+    digitalWrite(ledPin, LOW);
+    delay(200);
+    myServo.write(90);
+  } else {
+    Serial.println("Air is safe. All systems normal.");
+    digitalWrite(relayPin, LOW);
+    digitalWrite(buzzerPin, LOW);
+    digitalWrite(ledPin, LOW);
+    myServo.write(0);
+    delay(500);
+  }
+}
